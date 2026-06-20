@@ -11,8 +11,21 @@
 
 
 <input v-model="question" type="text" placeholder="Ask some questions">
-<button @click="handleAsk"> Ask</button>
+
+
+
 <p v-if="answer">{{ answer }}</p>
+
+
+<p v-if="status"> {{status}}</p>
+<button @click="handleAsk" :disabled="!ingested"> Ask </button>
+
+
+<div v-for="(msg, i) in messages" :key="i">
+  <p><strong>You:</strong> {{ msg.q }}</p>
+  <p><strong>Answer:</strong> {{ msg.a }}</p>
+</div>
+
 </template>
 
 <script setup>
@@ -23,11 +36,19 @@ import { createSession, ingestPdf, askQuestion } from '../api.js'
 const question = ref('')
 const answer = ref('')
 
+const messages =ref([])
+const ingested = ref(false)
+const status = ref('')
+
+
 const file = ref(null)
 
 
 const sessionId = ref(null)
 const handleIngest = async () => {
+
+  status.value = 'Processing'
+
   
 
   const formData = new FormData()
@@ -36,6 +57,8 @@ const handleIngest = async () => {
   )
 
   await ingestPdf(formData)
+  ingested.value = true
+  status.value= "ready"
 }
 
 const handleFileChange = (e) => {
@@ -43,7 +66,13 @@ const handleFileChange = (e) => {
 }
 
 const handleAsk = async () => {
-  answer.value = await askQuestion(sessionId.value, question.value)
+  const q = question.value
+  question.value = ''
+  const ans = await askQuestion(sessionId.value,q)
+  messages.value.push({q: q, a: ans})
+
+ 
+  
 }
 
 onMounted(async () => {
