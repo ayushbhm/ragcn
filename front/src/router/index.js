@@ -5,9 +5,15 @@ import main from '@/views/main.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-
-    { path: '/main', component: main },
-  ],
+    {
+      path: '/',
+      redirect: '/main'
+    },
+    {
+      path: '/main',
+      component: main
+    }
+  ]
 })
 
 export default router
