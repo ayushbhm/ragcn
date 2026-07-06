@@ -14,7 +14,12 @@ export const ingestPdf = async (formData) => {
   return res.data
 }
 
-export const askQuestion = async (sessionId, question) => {
-  const res = await api.post('/ask', { session_id: sessionId, question })
+export const askQuestion = async (sessionId, question, history) => {
+  const res = await api.post('/ask', {
+    session_id: sessionId,
+    question,
+    history
+  })
+
   return res.data.answer
 }

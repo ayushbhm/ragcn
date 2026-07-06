@@ -34,13 +34,22 @@ def ask():
         data = request.get_json() or {}
         session_id = data.get('session_id')
         question = data.get('question')
-        print("Data received:", data)
-        print("Session ID:", session_id)
-        print("Question:", question)
-        if not session_id or not question:
-            return jsonify({'error': 'session_id and question are required'}), 400
+        history = data.get("history", "")
+        
+        # debug - see retrieved chunks
+        from ingest import chroma_client, embeddings
+        from langchain_chroma import Chroma
+        vectorstore = Chroma(client=chroma_client, collection_name=session_id, embedding_function=embeddings)
+        docs = vectorstore.similarity_search(question, k=20)
+        for d in docs:
+            print(d.page_content[:200])
+            print("---")
+        
         chain = get_rag_chain(session_id)
-        answer = chain.invoke(question)
+        answer = chain.invoke({
+    "question": question,
+    "history": history
+})
         return jsonify({'answer': answer})
     except Exception as e:
         traceback.print_exc()
