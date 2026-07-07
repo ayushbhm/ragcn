@@ -1,9 +1,8 @@
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import chromadb
-from chromadb.config import Settings
 import tempfile
 import os
 
@@ -33,14 +32,15 @@ def chunk_docs(docs):
     return splitter.split_documents(docs)
 
 chroma_client = chromadb.EphemeralClient()
-embeddings = HuggingFaceEmbeddings(model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/gemini-embedding-001",
+    google_api_key=os.environ.get("GEMINI_API_KEY")
+)
 
 def embed_and_store(chunks, session_id):
     vectorstore = Chroma(
-        client = chroma_client,
-        collection_name = session_id,
+        client=chroma_client,
+        collection_name=session_id,
         embedding_function=embeddings
-        
     )
     vectorstore.add_documents(chunks)
-   
