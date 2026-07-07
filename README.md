@@ -3,6 +3,7 @@
 A  RAG assistant chatbot for both large PDFs and small page documents. Adaptive chunking and two-stage retrieval improve answers on long documents, while conversation history keeps follow-up questions in context.
 ## Design Choices Worth Noting
 
+> **Note:** Replaced local HuggingFace embeddings with  embedding API to eliminate the torch/transformers memory overhead that didn't fit a free-tier deployment.
 - **Adaptive chunking** — Chunk size and overlap scale with document length (500/50 for short PDFs, up to 2000/400 for 100+ page documents). This prevents over-fragmentation on small documents while preserving context in larger ones.
 - **Two-stage retrieval** — A wide similarity search retrieves the top 80 candidate chunks, then a FlashRank cross-encoder reranks them to the top 10. This significantly improves retrieval quality on large documents where plain top-k vector search often returns loosely related chunks.
 - **Multilingual embeddings** — Handles Hindi and English PDFs without language detection or branching logic.
